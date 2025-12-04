@@ -6,7 +6,7 @@
 // The declarations (extern) are located in include/constants/evolution_stages.h
 
 // --- STAGE 1 EVOLUTION POKÉMON (Base Forms & Single-Stage Non-Legendary) ---
-const u16 gStage1EvoMons[] = {
+static const u16 gStage1EvoMons[] = {
     // Gen 1
     SPECIES_BULBASAUR, SPECIES_CHARMANDER, SPECIES_SQUIRTLE, SPECIES_CATERPIE, SPECIES_WEEDLE,
     SPECIES_PIDGEY, SPECIES_RATTATA, SPECIES_SPEAROW, SPECIES_EKANS, SPECIES_SANDSHREW,
@@ -107,7 +107,7 @@ const u16 gStage1EvoMons[] = {
 
 // --- STAGE 2 EVOLUTION POKÉMON (Intermediate Forms AND Final Forms of 2-Stage Lines) ---
 // Second forms of 3-stage lines (Ivysaur, Pidgeotto, Machoke) AND final forms of 2-stage lines (Raticate, Sandslash, Jynx).
-const u16 gStage2EvoMons[] = {
+static const u16 gStage2EvoMons[] = {
     // Gen 1
     SPECIES_IVYSAUR, SPECIES_CHARMELEON, SPECIES_WARTORTLE, SPECIES_METAPOD, SPECIES_KAKUNA,
     SPECIES_PIDGEOTTO, SPECIES_RATICATE, SPECIES_FEAROW, SPECIES_ARBOK, SPECIES_SANDSLASH,
@@ -190,7 +190,7 @@ const u16 gStage2EvoMons[] = {
 
 // --- STAGE 3 EVOLUTION POKÉMON (Final Forms of 3-Stage Lines) ---
 // Final forms of 3-stage lines (Venusaur, Charizard, Machamp).
-const u16 gStage3EvoMons[] = {
+static const u16 gStage3EvoMons[] = {
     // Gen 1
     SPECIES_VENUSAUR, SPECIES_CHARIZARD, SPECIES_BLASTOISE, SPECIES_BUTTERFREE, SPECIES_BEEDRILL,
     SPECIES_PIDGEOT, SPECIES_DUGTRIO, SPECIES_ALAKAZAM, SPECIES_VILEPLUME, SPECIES_PARASECT,
@@ -243,9 +243,9 @@ const u16 gStage3EvoMons[] = {
 
 
 
-const u32 gStage1EvoMonsCount = ARRAY_COUNT(gStage1EvoMons) - 1; // -1 for terminator
+static const u32 gStage1EvoMonsCount = ARRAY_COUNT(gStage1EvoMons) - 1; // -1 for terminator
 
 
-const u32 gStage2EvoMonsCount = ARRAY_COUNT(gStage2EvoMons) - 1; // -1 for terminator
+static const u32 gStage2EvoMonsCount = ARRAY_COUNT(gStage2EvoMons) - 1; // -1 for terminator
 
-const u32 gStage3EvoMonsCount = ARRAY_COUNT(gStage3EvoMons) - 1; // -1 for terminator
+static const u32 gStage3EvoMonsCount = ARRAY_COUNT(gStage3EvoMons) - 1; // -1 for terminator

@@ -10,24 +10,22 @@
 
 // This section is protected from the assembly preprocessor (__ASSEMBLER__)
 // to prevent "bad instruction" errors when included in assembly files.
-#ifndef __ASSEMBLER__
 // --- STAGE 1 EVOLUTION POKÉMON (Base Forms & Single-Stage Non-Legendary) ---
 // Base forms (Bulbasaur, Caterpie, Klink) and Single-stage species (Tauros, Lapras, Pincurchin).
-extern const u16 gStage1EvoMons[];
+#define gStage1EvoMons
 
 // --- STAGE 2 EVOLUTION POKÉMON (Intermediate Forms AND Final Forms of 2-Stage Lines) ---
 // Examples: Ivysaur, Fearow, Raticate (intermediates) and Gyarados, Electabuzz (final 2-stage).
-extern const u16 gStage2EvoMons[];
+#define gStage2EvoMons
 
 // --- STAGE 3 EVOLUTION POKÉMON (Final Forms of 3-Stage Lines) ---
 // Examples: Venusaur, Charizard, Salamence.
-extern const u16 gStage3EvoMons[];
+#define gStage3EvoMons
 
 
 // Macro to get the number of Pokémon in each stage array (defined in the .c file)
-extern const u32 gStage1EvoMonsCount;
-extern const u32 gStage2EvoMonsCount;
-extern const u32 gStage3EvoMonsCount;
-#endif // __ASSEMBLER__
+#define gStage1EvoMonsCount
+#define gStage2EvoMonsCount
+#define gStage3EvoMonsCount
 
 #endif // GUARD_EVOLUTION_STAGES_H

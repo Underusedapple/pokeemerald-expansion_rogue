@@ -2320,7 +2320,7 @@ static void DebugAction_Give_Pokemon_SelectLevel(u8 taskId)
     }
 
     if (JOY_NEW(A_BUTTON))
-    {script_pokemon_uDEBUG
+    {
         FreeMonIconPalettes();
         FreeAndDestroyMonIconSprite(&gSprites[gTasks[taskId].tSpriteId]);
         if (gTasks[taskId].tIsComplex == FALSE)
