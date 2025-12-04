@@ -24,6 +24,7 @@
 #include "constants/easy_chat.h"
 #include "constants/event_objects.h"
 #include "constants/event_object_movement.h"
+#include "constants/evolution_stages.h"
 #include "constants/field_effects.h"
 #include "constants/field_move.h"
 #include "constants/field_poison.h"
@@ -55,6 +56,7 @@
 #include "constants/songs.h"
 #include "constants/sound.h"
 #include "constants/species.h"
+#include "constants/evolution_stages.h"
 #include "constants/trade.h"
 #include "constants/trainer_hill.h"
 #include "constants/trainers.h"
@@ -72,7 +74,7 @@
 	.include "data/script_cmd_table.inc"
 
 gSpecialVars::
-	.4byte gSpecialVar_0x8000
+	.4byte gSpecialVar_SecondResult
 	.4byte gSpecialVar_0x8001
 	.4byte gSpecialVar_0x8002
 	.4byte gSpecialVar_0x8003

@@ -13,6 +13,7 @@
 #include "constants/flags.h"
 #include "constants/vars.h"
 #include "constants/species.h"
+#include "constants/evolution_stages.h"
 #include "constants/pokedex.h"
 #include "constants/berry.h"
 #include "constants/maps.h"

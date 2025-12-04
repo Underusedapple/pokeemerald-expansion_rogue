@@ -51,6 +51,7 @@
 #include "wild_encounter.h"
 #include "window.h"
 #include "constants/species.h"
+#include "constants/evolution_stages.h"
 #include "constants/maps.h"
 #include "constants/field_effects.h"
 #include "constants/items.h"

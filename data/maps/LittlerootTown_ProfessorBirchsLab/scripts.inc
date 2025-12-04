@@ -1,7 +1,6 @@
 LittlerootTown_ProfessorBirchsLab_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, LittlerootTown_ProfessorBirchsLab_OnTransition
 	map_script MAP_SCRIPT_ON_WARP_INTO_MAP_TABLE, LittlerootTown_ProfessorBirchsLab_OnWarp
-	map_script MAP_SCRIPT_ON_FRAME_TABLE, LittlerootTown_ProfessorBirchsLab_OnFrame
 	.byte 0
 
 	@ State descriptions for VAR_DEX_UPGRADE_JOHTO_STARTER_STATE
@@ -19,20 +18,60 @@ LittlerootTown_ProfessorBirchsLab_MapScripts::
 	@ 4: Defeated rival on Route 103
 	@ 5: Received pokedex
 
+
+
+
+
+
+
+
+
+
+
+
 LittlerootTown_ProfessorBirchsLab_OnTransition:
 	call Common_EventScript_SetupRivalGfxId
+	call ProfBirch_EventScript_UpdateLocation
+
+	setflag FLAG_HIDE_MAP_NAME_POPUP
+	setvar VAR_LITTLEROOT_TOWN_STATE, 3
+	setvar VAR_LITTLEROOT_INTRO_STATE, 7
+	setvar VAR_LITTLEROOT_RIVAL_STATE, 4
+	setvar VAR_BIRCH_LAB_STATE, 4
+	setflag FLAG_SYS_POKEDEX_GET
+	setflag FLAG_RECEIVED_POKEDEX_FROM_BIRCH
+	setvar VAR_LITTLEROOT_HOUSES_STATE_BRENDAN, 2
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_MAYS_HOUSE_MOM
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_MAYS_HOUSE_TRUCK
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_BRENDANS_HOUSE_RIVAL_MOM
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_BRENDANS_HOUSE_RIVAL_SIBLING
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F_POKE_BALL
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_BRENDANS_HOUSE_MOM
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_BRENDANS_HOUSE_TRUCK
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_MAYS_HOUSE_RIVAL_MOM
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_MAYS_HOUSE_RIVAL_SIBLING
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_MAYS_HOUSE_2F_POKE_BALL
+	clearflag FLAG_HIDE_LITTLEROOT_TOWN_BIRCHS_LAB_BIRCH
+
+	setflag FLAG_SYS_POKEDEX_GET
+	special SetUnlockedPokedexFlags
+	setflag FLAG_RECEIVED_POKEDEX_FROM_BIRCH
+	setvar VAR_CABLE_CLUB_TUTORIAL_STATE, 1
 	call ProfBirch_EventScript_UpdateLocation
 	goto_if_ge VAR_DEX_UPGRADE_JOHTO_STARTER_STATE, 6, LittlerootTown_ProfessorBirchsLab_EventScript_SetAfterJohtoStarterLayout
 	goto_if_ge VAR_DEX_UPGRADE_JOHTO_STARTER_STATE, 4, LittlerootTown_ProfessorBirchsLab_EventScript_SetJohtoStarterLayout
 	goto_if_eq VAR_DEX_UPGRADE_JOHTO_STARTER_STATE, 3, LittlerootTown_ProfessorBirchsLab_EventScript_CheckReadyForJohtoStarter
 	end
 
+
+	
 LittlerootTown_ProfessorBirchsLab_EventScript_CheckReadyForJohtoStarter::
 	specialvar VAR_RESULT, HasAllHoennMons
 	goto_if_eq VAR_RESULT, TRUE, LittlerootTown_ProfessorBirchsLab_EventScript_SetReadyForJohtoStarter
 	setobjectmovementtype LOCALID_BIRCHS_LAB_RIVAL, MOVEMENT_TYPE_WANDER_UP_AND_DOWN
 	setobjectxyperm LOCALID_BIRCHS_LAB_RIVAL, 5, 10
 	end
+
 
 LittlerootTown_ProfessorBirchsLab_EventScript_SetReadyForJohtoStarter::
 	setvar VAR_DEX_UPGRADE_JOHTO_STARTER_STATE, 4
@@ -58,6 +97,35 @@ LittlerootTown_ProfessorBirchsLab_OnWarp:
 	map_script_2 VAR_DEX_UPGRADE_JOHTO_STARTER_STATE, 5, LittlerootTown_ProfessorBirchsLab_EventScript_SetObjectPosForJohtoStarters
 	.2byte 0
 
+LittlerootTown_ProfessorBirchsLab_EventScript_FullIntroSkipSetup::
+
+
+	checkplayergender
+	goto_if_eq VAR_RESULT, MALE, LittlerootTown_ProfessorBirchsLab_EventScript_SkipSetupMale
+	goto_if_eq VAR_RESULT, FEMALE, LittlerootTown_ProfessorBirchsLab_EventScript_SkipSetupFemale
+	return
+
+LittlerootTown_ProfessorBirchsLab_EventScript_SkipSetupMale::
+	setrespawn HEAL_LOCATION_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F
+	setvar VAR_LITTLEROOT_HOUSES_STATE_BRENDAN, 2 
+    
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_MAYS_HOUSE_MOM
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_MAYS_HOUSE_TRUCK
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_BRENDANS_HOUSE_RIVAL_MOM
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_BRENDANS_HOUSE_RIVAL_SIBLING
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F_POKE_BALL
+	return
+
+LittlerootTown_ProfessorBirchsLab_EventScript_SkipSetupFemale::
+	setrespawn HEAL_LOCATION_LITTLEROOT_TOWN_MAYS_HOUSE_2F
+	setvar VAR_LITTLEROOT_HOUSES_STATE_MAY, 2 
+
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_BRENDANS_HOUSE_MOM
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_BRENDANS_HOUSE_TRUCK
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_MAYS_HOUSE_RIVAL_MOM
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_MAYS_HOUSE_RIVAL_SIBLING
+	setflag FLAG_HIDE_LITTLEROOT_TOWN_MAYS_HOUSE_2F_POKE_BALL
+	return
 LittlerootTown_ProfessorBirchsLab_EventScript_SetPlayerPosForReceiveStarter::
 	turnobject LOCALID_PLAYER, DIR_NORTH
 	end
@@ -70,8 +138,6 @@ LittlerootTown_ProfessorBirchsLab_EventScript_SetObjectPosForDexUpgrade::
 	setobjectxy LOCALID_BIRCHS_LAB_RIVAL, 5, 5
 	turnobject LOCALID_BIRCHS_LAB_BIRCH, DIR_SOUTH
 	setobjectxy LOCALID_BIRCHS_LAB_BIRCH, 6, 4
-	turnobject LOCALID_BIRCHS_LAB_AIDE, DIR_EAST
-	setobjectxy LOCALID_BIRCHS_LAB_AIDE, 10, 10
 	end
 
 LittlerootTown_ProfessorBirchsLab_EventScript_AddRivalObject::
@@ -95,12 +161,7 @@ LittlerootTown_ProfessorBirchsLab_EventScript_SetObjectPosForJohtoStarters::
 	setobjectxy LOCALID_BIRCHS_LAB_RIVAL, 5, 5
 	end
 
-LittlerootTown_ProfessorBirchsLab_OnFrame:
-	map_script_2 VAR_BIRCH_LAB_STATE, 2, LittlerootTown_ProfessorBirchsLab_EventScript_GiveStarterEvent
-	map_script_2 VAR_BIRCH_LAB_STATE, 4, LittlerootTown_ProfessorBirchsLab_EventScript_GivePokedexEvent
-	map_script_2 VAR_DEX_UPGRADE_JOHTO_STARTER_STATE, 1, LittlerootTown_ProfessorBirchsLab_EventScript_UpgradeToNationalDex
-	map_script_2 VAR_DEX_UPGRADE_JOHTO_STARTER_STATE, 4, LittlerootTown_ProfessorBirchsLab_EventScript_ChooseJohtoStarter
-	.2byte 0
+
 
 @ The starter is technically given prior to this on Route 101 by special ChooseStarter
 @ This is just where the game tells you its yours and lets you nickname it
@@ -264,22 +325,11 @@ LittlerootTown_ProfessorBirchsLab_Movement_PlayerEnterLabForJohtoStarter:
 	walk_up
 	walk_up
 	walk_up
-	step_end
+step_end
 
-LittlerootTown_ProfessorBirchsLab_EventScript_Aide::
-	lock
-	faceplayer
-	goto_if_ge VAR_BIRCH_LAB_STATE, 3, LittlerootTown_ProfessorBirchsLab_EventScript_AideReceivedStarter
-	goto_if_set FLAG_BIRCH_AIDE_MET, LittlerootTown_ProfessorBirchsLab_EventScript_AideAlreadyMet
-	msgbox LittlerootTown_ProfessorBirchsLab_Text_BirchAwayOnFieldwork, MSGBOX_DEFAULT
-	setflag FLAG_BIRCH_AIDE_MET
-	release
-	end
 
-LittlerootTown_ProfessorBirchsLab_EventScript_AideAlreadyMet::
-	msgbox LittlerootTown_ProfessorBirchsLab_Text_BirchIsntOneForDeskWork, MSGBOX_DEFAULT
-	release
-	end
+
+
 
 LittlerootTown_ProfessorBirchsLab_EventScript_AideReceivedStarter::
 	msgbox LittlerootTown_ProfessorBirchsLab_Text_BirchEnjoysRivalsHelpToo, MSGBOX_DEFAULT
@@ -463,12 +513,19 @@ LittlerootTown_ProfessorBirchsLab_EventScript_ReceivedJohtoStarter::
 LittlerootTown_ProfessorBirchsLab_EventScript_Birch::
 	lock
 	faceplayer
-	goto_if_eq VAR_DEX_UPGRADE_JOHTO_STARTER_STATE, 5, LittlerootTown_ProfessorBirchsLab_EventScript_CanHaveAnyOneOfRarePokemon
-	goto_if_eq VAR_DEX_UPGRADE_JOHTO_STARTER_STATE, 2, LittlerootTown_ProfessorBirchsLab_EventScript_GrassyPatchWaiting
-	goto_if_unset FLAG_HAS_MATCH_CALL, LittlerootTown_ProfessorBirchsLab_EventScript_TryRatePokedexOrRegister
-	goto_if_unset FLAG_ENABLE_PROF_BIRCH_MATCH_CALL, EventScript_RegisterProfBirch
-	goto LittlerootTown_ProfessorBirchsLab_EventScript_TryRatePokedexOrRegister
+    msgbox LittlerootTown_ProfessorBirchsLab_EventScript_SelectReadyStart, MSGBOX_YESNO
+    goto_if_eq VAR_RESULT, NO, End_BirchScript
+	msgbox LittlerootTown_ProfessorBirchsLab_EventScript_SelectStarter
+	special ChooseStarter
+	waitstate
+	goto End_BirchScript
+
+End_BirchScript:
+	release
 	end
+
+
+
 
 LittlerootTown_ProfessorBirchsLab_EventScript_CanHaveAnyOneOfRarePokemon::
 	msgbox LittlerootTown_ProfessorBirchsLab_Text_CanHaveAnyOneOfRarePokemon, MSGBOX_DEFAULT
@@ -502,6 +559,11 @@ EventScript_RegisterProfBirch::
 	setvar VAR_REGISTER_BIRCH_STATE, 2
 	release
 	end
+
+
+
+
+
 
 LittlerootTown_ProfessorBirchsLab_EventScript_GivePokedex::
 	msgbox LittlerootTown_ProfessorBirchsLab_Text_HeardYouBeatRivalTakePokedex, MSGBOX_DEFAULT
@@ -656,24 +718,23 @@ LittlerootTown_ProfessorBirchsLab_EventScript_ScottAboardSSTidalCall::
 	releaseall
 	end
 
-LittlerootTown_ProfessorBirchsLab_Text_BirchAwayOnFieldwork:
-	.string "Hunh? PROF. BIRCH?\p"
-	.string "The PROF's away on fieldwork.\n"
-	.string "Ergo, he isn't here.\p"
-	.string "Oh, let me explain what fieldwork is.\p"
-	.string "It is to study things in the natural\n"
-	.string "environment, like fields and mountains,\l"
-	.string "instead of a laboratory.\p"
-	.string "The PROF isn't one for doing desk work.\n"
-	.string "He's the type of person who would\l"
-	.string "rather go outside and experience\l"
-	.string "things than read about them here.$"
 
-LittlerootTown_ProfessorBirchsLab_Text_BirchIsntOneForDeskWork:
-	.string "The PROF isn't one for doing desk work.\n"
-	.string "He's the type of person who would\l"
-	.string "rather go outside and experience\l"
-	.string "things than read about them here.$"
+
+
+LittlerootTown_ProfessorBirchsLab_EventScript_SelectReadyStart:
+	.string "Oh hey there. Are you ready to start?$"
+
+
+
+LittlerootTown_ProfessorBirchsLab_EventScript_SelectStarter:
+	.string "Great! Go ahead and pick your starters!$"
+
+LittlerootTown_ProfessorBirchsLab_EventScript_SelectSecondStarter:
+	.string "Great and now pick your second.$"
+
+
+
+
 
 LittlerootTown_ProfessorBirchsLab_Text_BirchEnjoysRivalsHelpToo:
 	.string "PROF. BIRCH is studying the habitats\n"

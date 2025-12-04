@@ -42,6 +42,7 @@ extern u16 gSpecialVar_0x8009;
 extern u16 gSpecialVar_0x800A;
 extern u16 gSpecialVar_0x800B;
 extern u16 gSpecialVar_Result;
+extern u16 gSpecialVar_SecondResult;
 extern u16 gSpecialVar_LastTalked;
 extern u16 gSpecialVar_Facing;
 extern u16 gSpecialVar_MonBoxId;

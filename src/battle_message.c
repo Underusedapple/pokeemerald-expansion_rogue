@@ -32,6 +32,7 @@
 #include "constants/moves.h"
 #include "constants/opponents.h"
 #include "constants/species.h"
+#include "constants/evolution_stages.h"
 #include "constants/trainers.h"
 #include "constants/trainer_hill.h"
 #include "constants/weather.h"

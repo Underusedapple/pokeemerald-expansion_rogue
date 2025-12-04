@@ -48,6 +48,7 @@
 #include "constants/moves.h"
 #include "constants/songs.h"
 #include "constants/species.h"
+#include "constants/evolution_stages.h"
 #include "constants/trainers.h"
 #include "constants/weather.h"
 #include "constants/pokemon.h"

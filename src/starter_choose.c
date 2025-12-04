@@ -23,9 +23,10 @@
 #include "window.h"
 #include "constants/songs.h"
 #include "constants/rgb.h"
+#include "random.h"
+#include "evolution_stages.h"
 
-#define STARTER_MON_COUNT   3
-
+#define STARTER_MON_COUNT   4 //
 // Position of the sprite of the selected starter Pokémon
 #define STARTER_PKMN_POS_X (DISPLAY_WIDTH / 2)
 #define STARTER_PKMN_POS_Y 64
@@ -98,9 +99,10 @@ static const struct WindowTemplate sWindowTemplate_StarterLabel =
 
 static const u8 sPokeballCoords[STARTER_MON_COUNT][2] =
 {
-    {60, 64},
-    {120, 88},
-    {180, 64},
+    {50, 64},
+    {100, 88},
+    {150, 88},
+    {200, 64},
 };
 
 static const u8 sStarterLabelCoords[STARTER_MON_COUNT][2] =
@@ -109,13 +111,17 @@ static const u8 sStarterLabelCoords[STARTER_MON_COUNT][2] =
     {16, 10},
     {8, 4},
 };
+static const u16 sStarterOptions[] = gStage1EvoMons
 
-static const u16 sStarterMon[STARTER_MON_COUNT] =
-{
-    SPECIES_TREECKO,
-    SPECIES_TORCHIC,
-    SPECIES_MUDKIP,
-};
+#define TOTAL_STARTER_OPTIONS   ARRAY_COUNT(sStarterOptions)
+
+static u16 sStarterMon[STARTER_MON_COUNT];
+// {
+//     SPECIES_TREECKO,
+//     SPECIES_TORCHIC,
+//     SPECIES_MUDKIP,
+//     SPECIES_BELDUM,
+// };
 
 static const struct BgTemplate sBgTemplates[3] =
 {
@@ -203,9 +209,10 @@ static const struct OamData sOam_StarterCircle =
 
 static const u8 sCursorCoords[][2] =
 {
-    {60, 32},
-    {120, 56},
-    {180, 32},
+    {50, 32}, // Above Ball 0
+    {100, 56}, // Above Ball 1
+    {150, 56}, // Above Ball 2
+    {200, 32}, // Above Ball 3
 };
 
 static const union AnimCmd sAnim_Hand[] =
@@ -366,16 +373,49 @@ static void VblankCB_StarterChoose(void)
 #define tStarterSelection   data[0]
 #define tPkmnSpriteId       data[1]
 #define tCircleSpriteId     data[2]
+#define tSelectionState     data[3]
 
 // Data for sSpriteTemplate_Pokeball
 #define sTaskId data[0]
 #define sBallId data[1]
 
+static void SetRandomStarters(void)
+{
+    u8 i;
+    s32 randIndex; // Use s32 for indices to be safe
+    u16 tempPool[TOTAL_STARTER_OPTIONS]; // Temporary working array
+    s32 currentPoolSize = TOTAL_STARTER_OPTIONS; // Size tracker
+
+    // 1. Copy the fixed pool into the temporary working array
+    for (i = 0; i < TOTAL_STARTER_OPTIONS; i++)
+    {
+        tempPool[i] = sStarterOptions[i];
+    }
+
+    // 2. Select 4 unique starters by drawing and shrinking the pool
+    for (i = 0; i < STARTER_MON_COUNT; i++)
+    {
+        // a. Select a random index within the current pool size
+        // We use Random() % currentPoolSize. Random() returns u16, but u32 is safer.
+        randIndex = Random() % currentPoolSize; 
+
+        // b. Store the selected species in the final array
+        sStarterMon[i] = tempPool[randIndex];
+
+        // c. Delete the selected option from the temporary pool 
+        //    by replacing it with the LAST item in the pool.
+        currentPoolSize--;
+        tempPool[randIndex] = tempPool[currentPoolSize];
+        
+        // This ensures the next selection cannot pick the same species.
+    }
+}
+
 void CB2_ChooseStarter(void)
 {
     u8 taskId;
     u8 spriteId;
-
+    SetRandomStarters();
     SetVBlankCallback(NULL);
 
     SetGpuReg(REG_OFFSET_DISPCNT, 0);
@@ -458,6 +498,12 @@ void CB2_ChooseStarter(void)
     spriteId = CreateSprite(&sSpriteTemplate_Pokeball, sPokeballCoords[2][0], sPokeballCoords[2][1], 2);
     gSprites[spriteId].sTaskId = taskId;
     gSprites[spriteId].sBallId = 2;
+
+    spriteId = CreateSprite(&sSpriteTemplate_Pokeball, sPokeballCoords[3][0], sPokeballCoords[3][1], 2);
+    gSprites[spriteId].sTaskId = taskId;
+    gSprites[spriteId].sBallId = 3;
+
+
 
     sStarterLabelWindowId = WINDOW_NONE;
 }
@@ -542,10 +588,35 @@ static void Task_HandleConfirmStarterInput(u8 taskId)
     switch (Menu_ProcessInputNoWrapClearOnChoose())
     {
     case 0:  // YES
-        // Return the starter choice and exit.
-        gSpecialVar_Result = gTasks[taskId].tStarterSelection;
-        ResetAllPicSprites();
-        SetMainCallback2(gMain.savedCallback);
+
+        if (gTasks[taskId].tSelectionState == 0) 
+        {
+
+            gSpecialVar_Result= gTasks[taskId].tStarterSelection;
+
+            PlaySE(SE_SELECT);
+            spriteId = gTasks[taskId].tPkmnSpriteId;
+            FreeOamMatrix(gSprites[spriteId].oam.matrixNum);
+            FreeAndDestroyMonPicSprite(spriteId);
+            SetRandomStarters();
+            spriteId = gTasks[taskId].tCircleSpriteId;
+            FreeOamMatrix(gSprites[spriteId].oam.matrixNum);
+            DestroySprite(&gSprites[spriteId]);
+            gTasks[taskId].tSelectionState = 1;
+            gTasks[taskId].func = Task_StarterChoose;
+            
+        }
+        else{
+
+            /* The above code appears to be a comment block in the C programming language. It does not
+            contain any executable code. The line "gSpecialVar_SecondResult" seems to be a
+            placeholder or a variable name, but without any context, it is unclear what its purpose
+            is. */
+            gSpecialVar_SecondResult= gTasks[taskId].tStarterSelection;
+            ResetAllPicSprites();
+            SetMainCallback2(gMain.savedCallback);
+        }
+
         break;
     case 1:  // NO
     case MENU_B_PRESSED:
