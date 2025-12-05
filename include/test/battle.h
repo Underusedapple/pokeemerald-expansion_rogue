@@ -528,7 +528,7 @@
 #include "constants/items.h"
 #include "constants/moves.h"
 #include "constants/species.h"
-#include "constants/evolution_stages.h"
+// #include "evolution_stages.h"
 #include "test/test.h"
 
 // NOTE: If the stack is too small the test runner will probably crash

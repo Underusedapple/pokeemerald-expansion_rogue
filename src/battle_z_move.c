@@ -36,7 +36,7 @@
 #include "constants/songs.h"
 #include "constants/items.h"
 #include "constants/species.h"
-#include "constants/evolution_stages.h"
+// #include "evolution_stages.h"
 #include "constants/hold_effects.h"
 #include "constants/battle_string_ids.h"
 #include "constants/battle_move_effects.h"

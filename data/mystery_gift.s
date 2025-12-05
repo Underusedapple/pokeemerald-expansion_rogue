@@ -7,7 +7,6 @@
 #include "constants/region_map_sections.h"
 #include "constants/songs.h"
 #include "constants/species.h"
-#include "constants/evolution_stages.h"
 #include "constants/vars.h"
 #include "constants/wild_encounter.h"
 	.include "asm/macros.inc"

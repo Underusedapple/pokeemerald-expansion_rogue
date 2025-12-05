@@ -3,7 +3,7 @@
 #include "constants/expansion.h"
 #include "constants/moves.h"
 #include "constants/species.h"
-#include "constants/evolution_stages.h"
+// #include "evolution_stages.h"
 #include "constants/items.h"
 
 // Similar to the GF ROM header, this struct allows external programs to
