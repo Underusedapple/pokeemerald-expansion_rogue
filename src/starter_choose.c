@@ -111,7 +111,7 @@ static const u8 sStarterLabelCoords[STARTER_MON_COUNT][2] =
     {16, 10},
     {8, 4},
 };
-static const u16 sStarterOptions = gStage1EvoMons
+static const u16 *const sStarterOptions = gStage1EvoMons;
 
 #define TOTAL_STARTER_OPTIONS   ARRAY_COUNT(sStarterOptions)
 
