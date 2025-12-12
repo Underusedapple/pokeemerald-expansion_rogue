@@ -23,10 +23,9 @@
 #include "window.h"
 #include "constants/songs.h"
 #include "constants/rgb.h"
-#include "random.h"
-#include "evolution_stages.h"
 
-#define STARTER_MON_COUNT   4 //
+#define STARTER_MON_COUNT   4
+
 // Position of the sprite of the selected starter Pokémon
 #define STARTER_PKMN_POS_X (DISPLAY_WIDTH / 2)
 #define STARTER_PKMN_POS_Y 64
@@ -100,9 +99,9 @@ static const struct WindowTemplate sWindowTemplate_StarterLabel =
 static const u8 sPokeballCoords[STARTER_MON_COUNT][2] =
 {
     {40, 64},
-    {90, 88},
+    {88, 88},   // Changed from 90 (Difference to 120 is now 32, divisible by 4)
     {140, 88},
-    {190, 64},
+    {192, 64},  // Changed from 190 (Difference to 120 is now 72, divisible by 4)
 };
 
 static const u8 sStarterLabelCoords[STARTER_MON_COUNT][2] =
@@ -112,19 +111,14 @@ static const u8 sStarterLabelCoords[STARTER_MON_COUNT][2] =
     {12, 4},
     {18, 10},
 };
-// static const u16 *const sStarterOptions = gStage1EvoMons;
 
-// #define TOTAL_STARTER_OPTIONS   ARRAY_COUNT(sStarterOptions)
-
-static u16 sStarterMon[STARTER_MON_COUNT] =
+static const u16 sStarterMon[STARTER_MON_COUNT] =
 {
     SPECIES_TREECKO,
     SPECIES_TORCHIC,
     SPECIES_MUDKIP,
     SPECIES_BELDUM,
 };
-
-
 
 static const struct BgTemplate sBgTemplates[3] =
 {
@@ -212,10 +206,10 @@ static const struct OamData sOam_StarterCircle =
 
 static const u8 sCursorCoords[][2] =
 {
-    {50, 32}, // Above Ball 0
-    {100, 56}, // Above Ball 1
-    {150, 56}, // Above Ball 2
-    {200, 32}, // Above Ball 3
+    {50, 32}, 
+    {100, 56}, 
+    {150, 56}, 
+    {200, 32}, 
 };
 
 static const union AnimCmd sAnim_Hand[] =
@@ -371,17 +365,6 @@ static void VblankCB_StarterChoose(void)
     ProcessSpriteCopyRequests();
     TransferPlttBuffer();
 }
-
-// Data for Task_StarterChoose
-#define tStarterSelection   data[0]
-#define tPkmnSpriteId       data[1]
-#define tCircleSpriteId     data[2]
-#define tSelectionState     data[3]
-
-// Data for sSpriteTemplate_Pokeball
-#define sTaskId data[0]
-#define sBallId data[1]
-
 // static void SetRandomStarters(void)
 // {
 //     u8 i;
@@ -414,11 +397,21 @@ static void VblankCB_StarterChoose(void)
 //     }
 // }
 
+// Data for Task_StarterChoose
+#define tStarterSelection   data[0]
+#define tPkmnSpriteId       data[1]
+#define tCircleSpriteId     data[2]
+#define tSelectionState     data[3]
+
+// Data for sSpriteTemplate_Pokeball
+#define sTaskId data[0]
+#define sBallId data[1]
+
 void CB2_ChooseStarter(void)
 {
     u8 taskId;
     u8 spriteId;
-    // SetRandomStarters();
+
     SetVBlankCallback(NULL);
 
     SetGpuReg(REG_OFFSET_DISPCNT, 0);
@@ -489,7 +482,7 @@ void CB2_ChooseStarter(void)
     spriteId = CreateSprite(&sSpriteTemplate_Hand, 120, 56, 2);
     gSprites[spriteId].data[0] = taskId;
 
-    // Create 4 Poké Ball sprites
+    // Create three Poké Ball sprites
     spriteId = CreateSprite(&sSpriteTemplate_Pokeball, sPokeballCoords[0][0], sPokeballCoords[0][1], 2);
     gSprites[spriteId].sTaskId = taskId;
     gSprites[spriteId].sBallId = 0;
@@ -502,12 +495,9 @@ void CB2_ChooseStarter(void)
     gSprites[spriteId].sTaskId = taskId;
     gSprites[spriteId].sBallId = 2;
 
-    spriteId = CreateSprite(&sSpriteTemplate_Pokeball, sPokeballCoords[3][0], sPokeballCoords[3][1], 2);
+        spriteId = CreateSprite(&sSpriteTemplate_Pokeball, sPokeballCoords[3][0], sPokeballCoords[3][1], 2);
     gSprites[spriteId].sTaskId = taskId;
     gSprites[spriteId].sBallId = 3;
-
-
-
     sStarterLabelWindowId = WINDOW_NONE;
 }
 
@@ -619,7 +609,6 @@ static void Task_HandleConfirmStarterInput(u8 taskId)
             ResetAllPicSprites();
             SetMainCallback2(gMain.savedCallback);
         }
-
         break;
     case 1:  // NO
     case MENU_B_PRESSED:
