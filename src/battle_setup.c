@@ -68,7 +68,7 @@ static void CB2_EndWildBattle(void);
 static void CB2_EndScriptedWildBattle(void);
 static void TryUpdateGymLeaderRematchFromWild(void);
 static void TryUpdateGymLeaderRematchFromTrainer(void);
-static void CB2_GiveStarter(void);
+static void CB2_PrepBattle(void);
 static void CB2_StartFirstBattle(void);
 static void CB2_EndFirstBattle(void);
 static void SaveChangesToPlayerParty(void);
@@ -863,21 +863,21 @@ u8 GetSpecialBattleTransition(s32 id)
 void ChooseStarter(void)
 {
     SetMainCallback2(CB2_ChooseStarter);
-    gMain.savedCallback = CB2_GiveStarter;
+    gMain.savedCallback = CB2_PrepBattle;
 }
 
 
-static void CB2_GiveStarter(void)
+static void CB2_PrepBattle(void)
 {
-    u16 starterMon;
-    u16 secondStarterMon;
+    // u16 starterMon;
+    // u16 secondStarterMon;
 
-    *GetVarPointer(VAR_STARTER_MON) = gSpecialVar_Result;
-    *GetVarPointer(VAR_SECOND_STARTER) = gSpecialVar_SecondResult;
-    starterMon = GetStarterPokemon(gSpecialVar_Result);
-    ScriptGiveMon(starterMon, 5, ITEM_NONE);
-    secondStarterMon = GetStarterPokemon(gSpecialVar_SecondResult);
-    ScriptGiveMon(secondStarterMon, 5, ITEM_NONE);
+    // *GetVarPointer(VAR_STARTER_MON) = gSpecialVar_Result;
+    // *GetVarPointer(VAR_SECOND_STARTER) = gSpecialVar_SecondResult;
+    // starterMon = GetStarterPokemon(gSpecialVar_Result);
+    // ScriptGiveMon(starterMon, 5, ITEM_NONE);
+    // secondStarterMon = GetStarterPokemon(gSpecialVar_SecondResult);
+    // ScriptGiveMon(secondStarterMon, 5, ITEM_NONE);
     ResetTasks();
     PlayBattleBGM();
     

@@ -24,6 +24,7 @@
 #include "constants/songs.h"
 #include "constants/rgb.h"
 #include "evolution_stages.h"
+#include "script_pokemon_util.h"
 #include "random.h"
 
 #define STARTER_MON_COUNT   4
@@ -568,7 +569,7 @@ static void Task_HandleStarterChooseInput(u8 taskId)
         if (sStarterPage > 0)
         {
         sStarterPage = !sStarterPage;
-        
+        gTasks[taskId].tStarterSelection = 0;
         // Play a sound
         PlaySE(SE_SELECT);
         
@@ -605,7 +606,8 @@ static void Task_AskConfirmStarter(u8 taskId)
 static void Task_HandleConfirmStarterInput(u8 taskId)
 {
     u8 spriteId;
-
+    u16 starterMon;
+    u16 secondStarterMon;
     switch (Menu_ProcessInputNoWrapClearOnChoose())
     {
     case 0:  // YES
@@ -613,7 +615,9 @@ static void Task_HandleConfirmStarterInput(u8 taskId)
         if (sStarterPage == 0) 
         {
 
-            gSpecialVar_Result= gTasks[taskId].tStarterSelection;
+            *GetVarPointer(VAR_STARTER_MON) = gTasks[taskId].tStarterSelection;
+            starterMon = GetStarterPokemon(gTasks[taskId].tStarterSelection);
+            ScriptGiveMon(starterMon, 5, ITEM_NONE);
 
             PlaySE(SE_SELECT);
             spriteId = gTasks[taskId].tPkmnSpriteId;
@@ -624,16 +628,19 @@ static void Task_HandleConfirmStarterInput(u8 taskId)
             FreeOamMatrix(gSprites[spriteId].oam.matrixNum);
             DestroySprite(&gSprites[spriteId]);
             sStarterPage = 1;
+            gTasks[taskId].tStarterSelection = 0;
             gTasks[taskId].func = Task_StarterChoose;
             
+
+
+
         }
         else{
 
-            /* The above code appears to be a comment block in the C programming language. It does not
-            contain any executable code. The line "gSpecialVar_SecondResult" seems to be a
-            placeholder or a variable name, but without any context, it is unclear what its purpose
-            is. */
-            gSpecialVar_SecondResult= gTasks[taskId].tStarterSelection;
+            *GetVarPointer(VAR_SECOND_STARTER) = gTasks[taskId].tStarterSelection;
+            secondStarterMon = GetStarterPokemon(gTasks[taskId].tStarterSelection);
+            ScriptGiveMon(secondStarterMon, 5, ITEM_NONE);
+
             ResetAllPicSprites();
             SetMainCallback2(gMain.savedCallback);
         }
