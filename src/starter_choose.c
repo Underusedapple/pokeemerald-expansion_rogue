@@ -23,6 +23,8 @@
 #include "window.h"
 #include "constants/songs.h"
 #include "constants/rgb.h"
+#include "evolution_stages.h"
+#include "random.h"
 
 #define STARTER_MON_COUNT   4
 
@@ -112,13 +114,9 @@ static const u8 sStarterLabelCoords[STARTER_MON_COUNT][2] =
     {18, 10},
 };
 
-static const u16 sStarterMon[STARTER_MON_COUNT] =
-{
-    SPECIES_TREECKO,
-    SPECIES_TORCHIC,
-    SPECIES_MUDKIP,
-    SPECIES_BELDUM,
-};
+static u8 sStarterPage = 0;
+static u16 sFirstStarterMon[STARTER_MON_COUNT];
+static u16 sSecondStarterMon[STARTER_MON_COUNT];
 
 static const struct BgTemplate sBgTemplates[3] =
 {
@@ -206,10 +204,10 @@ static const struct OamData sOam_StarterCircle =
 
 static const u8 sCursorCoords[][2] =
 {
-    {50, 32}, 
-    {100, 56}, 
-    {150, 56}, 
-    {200, 32}, 
+    {40, 32}, 
+    {98, 56}, 
+    {148, 56}, 
+    {192, 32}, 
 };
 
 static const union AnimCmd sAnim_Hand[] =
@@ -354,9 +352,18 @@ static const struct SpriteTemplate sSpriteTemplate_StarterCircle =
 // .text
 u16 GetStarterPokemon(u16 chosenStarterId)
 {
-    if (chosenStarterId > STARTER_MON_COUNT)
+    if (chosenStarterId >= STARTER_MON_COUNT)
         chosenStarterId = 0;
-    return sStarterMon[chosenStarterId];
+
+    if (sStarterPage == 0) 
+    {
+        return sFirstStarterMon[chosenStarterId];
+
+    }
+    else
+    {
+        return sSecondStarterMon[chosenStarterId];
+    }
 }
 
 static void VblankCB_StarterChoose(void)
@@ -365,37 +372,37 @@ static void VblankCB_StarterChoose(void)
     ProcessSpriteCopyRequests();
     TransferPlttBuffer();
 }
-// static void SetRandomStarters(void)
-// {
-//     u8 i;
-//     s32 randIndex; // Use s32 for indices to be safe
-//     u16 tempPool[TOTAL_STARTER_OPTIONS]; // Temporary working array
-//     s32 currentPoolSize = TOTAL_STARTER_OPTIONS; // Size tracker
+static void SetRandomStarters(u16 starterList[STARTER_MON_COUNT])
+{
+    u8 i, j;
+    u16 species;
+    bool8 duplicate;
 
-//     // 1. Copy the fixed pool into the temporary working array
-//     for (i = 0; i < TOTAL_STARTER_OPTIONS; i++)
-//     {
-//         tempPool[i] = sStarterOptions[i];
-//     }
+    for (i = 0; i < STARTER_MON_COUNT; i++)
+    {
+        do
+        {
+            duplicate = FALSE;
 
-//     // 2. Select 4 unique starters by drawing and shrinking the pool
-//     for (i = 0; i < STARTER_MON_COUNT; i++)
-//     {
-//         // a. Select a random index within the current pool size
-//         // We use Random() % currentPoolSize. Random() returns u16, but u32 is safer.
-//         randIndex = Random() % currentPoolSize; 
+            u32 index = Random() % gStage1EvoMonsCount;
 
-//         // b. Store the selected species in the final array
-//         // sStarterMon[i] = tempPool[randIndex];
+            species = gStage1EvoMons[index];
 
-//         // c. Delete the selected option from the temporary pool 
-//         //    by replacing it with the LAST item in the pool.
-//         currentPoolSize--;
-//         tempPool[randIndex] = tempPool[currentPoolSize];
-        
-//         // This ensures the next selection cannot pick the same species.
-//     }
-// }
+            for(j=0; j<i ; j++)
+            {
+                if (starterList[j] == species)
+                {
+                    duplicate = TRUE;
+                    break;
+                }
+            }
+
+        } while (duplicate);
+
+        starterList[i] = species;
+    }
+
+}
 
 // Data for Task_StarterChoose
 #define tStarterSelection   data[0]
@@ -411,8 +418,12 @@ void CB2_ChooseStarter(void)
 {
     u8 taskId;
     u8 spriteId;
-
+    
     SetVBlankCallback(NULL);
+    SetRandomStarters(sFirstStarterMon);
+    SetRandomStarters(sSecondStarterMon);
+
+    sStarterPage = 0;
 
     SetGpuReg(REG_OFFSET_DISPCNT, 0);
     SetGpuReg(REG_OFFSET_BG3CNT, 0);
@@ -552,6 +563,23 @@ static void Task_HandleStarterChooseInput(u8 taskId)
         gTasks[taskId].tStarterSelection++;
         gTasks[taskId].func = Task_MoveStarterChooseCursor;
     }
+    else if (JOY_NEW(B_BUTTON))
+    {
+        if (sStarterPage > 0)
+        {
+        sStarterPage = !sStarterPage;
+        
+        // Play a sound
+        PlaySE(SE_SELECT);
+        
+        // Refresh the sprites/labels to show the new mons
+        ClearStarterLabel();
+        
+        // Note: You might need to reload the ball sprites or 
+        // force the label to update immediately here.
+        Task_CreateStarterLabel(taskId);
+        }
+    }
 }
 
 static void Task_WaitForStarterSprite(u8 taskId)
@@ -582,7 +610,7 @@ static void Task_HandleConfirmStarterInput(u8 taskId)
     {
     case 0:  // YES
 
-        if (gTasks[taskId].tSelectionState == 0) 
+        if (sStarterPage == 0) 
         {
 
             gSpecialVar_Result= gTasks[taskId].tStarterSelection;
@@ -591,11 +619,11 @@ static void Task_HandleConfirmStarterInput(u8 taskId)
             spriteId = gTasks[taskId].tPkmnSpriteId;
             FreeOamMatrix(gSprites[spriteId].oam.matrixNum);
             FreeAndDestroyMonPicSprite(spriteId);
-            // SetRandomStarters();
+
             spriteId = gTasks[taskId].tCircleSpriteId;
             FreeOamMatrix(gSprites[spriteId].oam.matrixNum);
             DestroySprite(&gSprites[spriteId]);
-            gTasks[taskId].tSelectionState = 1;
+            sStarterPage = 1;
             gTasks[taskId].func = Task_StarterChoose;
             
         }

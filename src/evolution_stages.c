@@ -229,9 +229,8 @@ const u16 gStage3EvoMons[] = {
 };
 
 
-const u32 gStage1EvoMonsCount = ARRAY_COUNT(gStage1EvoMons) - 1; // -1 for terminator
+const u32 gStage1EvoMonsCount = ARRAY_COUNT(gStage1EvoMons);
 
+const u32 gStage2EvoMonsCount = ARRAY_COUNT(gStage2EvoMons);
 
-const u32 gStage2EvoMonsCount = ARRAY_COUNT(gStage2EvoMons) - 1; // -1 for terminator
-
-const u32 gStage3EvoMonsCount = ARRAY_COUNT(gStage3EvoMons) - 1; // -1 for terminator
+const u32 gStage3EvoMonsCount = ARRAY_COUNT(gStage3EvoMons);
