@@ -518,6 +518,12 @@ LittlerootTown_ProfessorBirchsLab_EventScript_Birch::
 	msgbox LittlerootTown_ProfessorBirchsLab_EventScript_SelectStarter
 	special ChooseStarter
 	waitstate
+	msgbox LittlerootTown_ProfessorBirchsLab_EventScript_SelectItem, MSGBOX_DEFAULT
+	waitmessage
+	rewardmart
+	msgbox LittlerootTown_ProfessorBirchsLab_EventScript_AfterItem, MSGBOX_DEFAULT
+	waitmessage
+	release
 	goto End_BirchScript
 
 End_BirchScript:
@@ -729,8 +735,12 @@ LittlerootTown_ProfessorBirchsLab_EventScript_SelectReadyStart:
 LittlerootTown_ProfessorBirchsLab_EventScript_SelectStarter:
 	.string "Great! Go ahead and pick your starters!$"
 
-LittlerootTown_ProfessorBirchsLab_EventScript_SelectSecondStarter:
-	.string "Great and now pick your second.$"
+LittlerootTown_ProfessorBirchsLab_EventScript_SelectItem:
+	.string "Way to go! Your journey Starts here.\n"
+	.string "Select your reward.$"
+
+LittlerootTown_ProfessorBirchsLab_EventScript_AfterItem:
+	.string "Good Luck!$"
 
 
 

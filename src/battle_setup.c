@@ -869,15 +869,7 @@ void ChooseStarter(void)
 
 static void CB2_PrepBattle(void)
 {
-    // u16 starterMon;
-    // u16 secondStarterMon;
 
-    // *GetVarPointer(VAR_STARTER_MON) = gSpecialVar_Result;
-    // *GetVarPointer(VAR_SECOND_STARTER) = gSpecialVar_SecondResult;
-    // starterMon = GetStarterPokemon(gSpecialVar_Result);
-    // ScriptGiveMon(starterMon, 5, ITEM_NONE);
-    // secondStarterMon = GetStarterPokemon(gSpecialVar_SecondResult);
-    // ScriptGiveMon(secondStarterMon, 5, ITEM_NONE);
     ResetTasks();
     PlayBattleBGM();
     
@@ -892,7 +884,7 @@ static void CB2_StartFirstBattle(void)
 
     if (IsBattleTransitionDone() == TRUE)
     {
-        gBattleTypeFlags = BATTLE_TYPE_FIRST_BATTLE;
+        gBattleTypeFlags |= BATTLE_TYPE_FIRST_BATTLE | BATTLE_TYPE_DOUBLE;
         gMain.savedCallback = CB2_EndFirstBattle;
         FreeAllWindowBuffers();
         SetMainCallback2(CB2_InitBattle);

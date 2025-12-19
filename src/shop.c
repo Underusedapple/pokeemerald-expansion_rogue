@@ -40,12 +40,17 @@
 #include "constants/metatile_behaviors.h"
 #include "constants/rgb.h"
 #include "constants/songs.h"
+#include "item_choices.h"
+#include "random.h"
+
 
 #define TAG_SCROLL_ARROW   2100
 #define TAG_ITEM_ICON_BASE 9110 // immune to time blending
 
 #define MAX_ITEMS_SHOWN 8
 #define SHOP_MENU_PALETTE_ID 12
+#define MAX_REWARD_SIZE 3
+static u16 sRandomRewardItemIds[MAX_REWARD_SIZE];
 
 enum {
     WIN_BUY_SELL_QUIT,
@@ -69,6 +74,7 @@ enum {
 
 enum {
     MART_TYPE_NORMAL,
+    MART_TYPE_REWARD,
     MART_TYPE_DECOR,
     MART_TYPE_DECOR2,
 };
@@ -157,6 +163,11 @@ static void Task_HandleShopMenuBuy(u8 taskId);
 static void Task_HandleShopMenuSell(u8 taskId);
 static void BuyMenuPrintItemDescriptionAndShowItemIcon(s32 item, bool8 onInit, struct ListMenu *list);
 static void BuyMenuPrintPriceInList(u8 windowId, u32 itemId, u8 y);
+static void RandomizeRewardOptions(void);
+static u8 sRewardOptionText_0[16];
+static u8 sRewardOptionText_1[16];
+static u8 sRewardOptionText_2[16];
+
 
 static const struct YesNoFuncTable sShopPurchaseYesNoFuncs =
 {
@@ -171,11 +182,21 @@ static const struct MenuAction sShopMenuActions_BuySellQuit[] =
     { gText_ShopQuit, {.void_u8=Task_HandleShopMenuQuit} }
 };
 
+static const struct MenuAction sRewardMenuActions[] =
+{
+    { sRewardOptionText_0, {NULL} },
+    { sRewardOptionText_1, {NULL} },
+    { sRewardOptionText_2, {NULL} },
+};
+
 static const struct MenuAction sShopMenuActions_BuyQuit[] =
 {
     { gText_ShopBuy, {.void_u8=Task_HandleShopMenuBuy} },
     { gText_ShopQuit, {.void_u8=Task_HandleShopMenuQuit} }
 };
+
+
+
 
 static const struct WindowTemplate sShopMenuWindowTemplates[] =
 {
@@ -183,8 +204,8 @@ static const struct WindowTemplate sShopMenuWindowTemplates[] =
         .bg = 0,
         .tilemapLeft = 2,
         .tilemapTop = 1,
-        .width = 9,
-        .height = 6,
+        .width = 25,
+        .height = 8,
         .paletteNum = 15,
         .baseBlock = 0x0008,
     },
@@ -343,6 +364,7 @@ static const u8 sShopBuyMenuTextColors[][3] =
 static u8 CreateShopMenu(u8 martType)
 {
     int numMenuItems;
+    RandomizeRewardOptions();
 
     LockPlayerFieldControls();
     sMartInfo.martType = martType;
@@ -354,6 +376,15 @@ static u8 CreateShopMenu(u8 martType)
         sMartInfo.windowId = AddWindow(&winTemplate);
         sMartInfo.menuActions = sShopMenuActions_BuySellQuit;
         numMenuItems = ARRAY_COUNT(sShopMenuActions_BuySellQuit);
+    }
+    if (martType == MART_TYPE_REWARD)
+    {
+        struct WindowTemplate winTemplate = sShopMenuWindowTemplates[WIN_BUY_SELL_QUIT];
+        winTemplate.width = GetMaxWidthInMenuTable(sRewardMenuActions, ARRAY_COUNT(sRewardMenuActions));
+        sMartInfo.windowId = AddWindow(&winTemplate);
+        sMartInfo.menuActions = sRewardMenuActions;
+        numMenuItems = ARRAY_COUNT(sRewardMenuActions);
+
     }
     else
     {
@@ -372,6 +403,9 @@ static u8 CreateShopMenu(u8 martType)
 
     return CreateTask(Task_ShopMenu, 8);
 }
+
+
+
 
 static void SetShopMenuCallback(void (*callback)(void))
 {
@@ -393,6 +427,14 @@ static void SetShopItemsForSale(const u16 *items)
     }
 }
 
+
+
+#define tItemCount  data[1]
+#define tItemId     data[5]
+#define tListTaskId data[7]
+#define tCallbackHi data[8]
+#define tCallbackLo data[9]
+
 static void Task_ShopMenu(u8 taskId)
 {
     s8 inputCode = Menu_ProcessInputNoWrap();
@@ -405,16 +447,35 @@ static void Task_ShopMenu(u8 taskId)
         Task_HandleShopMenuQuit(taskId);
         break;
     default:
-        sMartInfo.menuActions[inputCode].func.void_u8(taskId);
+        PlaySE(SE_SELECT); 
+        u16 itemId = sRandomRewardItemIds[inputCode];
+        // get the id of the actual item here
+        AddBagItem(itemId,1); 
+        gTasks[taskId].func = Task_HandleShopMenuQuit;
+
         break;
     }
 }
 
-#define tItemCount  data[1]
-#define tItemId     data[5]
-#define tListTaskId data[7]
-#define tCallbackHi data[8]
-#define tCallbackLo data[9]
+
+static void RandomizeRewardOptions(void)
+{
+    u16 item;
+    u32 index;
+    u8 *text_buffers[] = {sRewardOptionText_0, sRewardOptionText_1, sRewardOptionText_2};
+
+    for (u8 i = 0; i < MAX_REWARD_SIZE; i++)
+    {
+        index = Random() % gStarterItemsChoicesCount;
+        item = gStarterItemsChoices[index];
+        
+        // 1. Store the NUMBER in your ID array
+        sRandomRewardItemIds[i] = item; 
+
+        // 2. Store the NAME in your text buffer for the menu to display
+        StringCopy(text_buffers[i], GetItemName(item));
+    }
+}
 
 static void Task_HandleShopMenuBuy(u8 taskId)
 {
@@ -440,17 +501,19 @@ void CB2_ExitSellMenu(void)
     SetMainCallback2(CB2_ReturnToField);
 }
 
+
 static void Task_HandleShopMenuQuit(u8 taskId)
 {
     ClearStdWindowAndFrameToTransparent(sMartInfo.windowId, 2); // Incorrect use, making it not copy it to vram.
     RemoveWindow(sMartInfo.windowId);
-    TryPutSmartShopperOnAir();
     UnlockPlayerFieldControls();
     DestroyTask(taskId);
 
     if (sMartInfo.callback)
         sMartInfo.callback();
+
 }
+
 
 static void Task_GoToBuyOrSellMenu(u8 taskId)
 {
@@ -1298,8 +1361,14 @@ static void RecordItemPurchase(u8 taskId)
 void CreatePokemartMenu(const u16 *itemsForSale)
 {
     CreateShopMenu(MART_TYPE_NORMAL);
-    SetShopItemsForSale(itemsForSale);
-    ClearItemPurchases();
+    // SetShopItemsForSale(itemsForSale);
+    // ClearItemPurchases();
+    SetShopMenuCallback(ScriptContext_Enable);
+}
+
+void CreateRewardmartMenu(void)
+{
+    CreateShopMenu(MART_TYPE_REWARD);
     SetShopMenuCallback(ScriptContext_Enable);
 }
 

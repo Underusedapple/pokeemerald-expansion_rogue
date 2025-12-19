@@ -30,6 +30,9 @@
 #include "constants/item_effects.h"
 #include "constants/songs.h"
 #include "pokemon_animation.h"
+#include "evolution_stages.h"
+#include "random.h"
+
 
 static EWRAM_DATA u8 sLinkSendTaskId = 0;
 static EWRAM_DATA u8 sLinkReceiveTaskId = 0;
@@ -63,9 +66,10 @@ void HandleLinkBattleSetup(void)
     }
 }
 
-void SetUpBattleVarsAndBirchZigzagoon(void)
+void SetUpBattleVarsAndInitialBattleMons(void)
 {
     s32 i;
+    u16 firstSpecies, secondSpecies;
 
     gBattleMainFunc = BeginBattleIntroDummy;
 
@@ -86,9 +90,15 @@ void SetUpBattleVarsAndBirchZigzagoon(void)
     if (gBattleTypeFlags & BATTLE_TYPE_FIRST_BATTLE)
     {
         ZeroEnemyPartyMons();
-        CreateMon(&gEnemyParty[0], SPECIES_ZIGZAGOON, 2, USE_RANDOM_IVS, 0, 0, OT_ID_PLAYER_ID, 0);
+        u32 firstIndex = Random() % gStage1EvoMonsCount;
+        u32 secondIndex = Random() % gStage1EvoMonsCount;
+        firstSpecies = gStage1EvoMons[firstIndex];
+        secondSpecies = gStage1EvoMons[secondIndex];
+        CreateMon(&gEnemyParty[0], firstSpecies, 2, USE_RANDOM_IVS, 0, 0, OT_ID_PLAYER_ID, 0); //THIS IS WHAT IM LOOKING FOR
         i = 0;
         SetMonData(&gEnemyParty[0], MON_DATA_HELD_ITEM, &i);
+        CreateMon(&gEnemyParty[1], secondSpecies, 2, USE_RANDOM_IVS, 0, 0, OT_ID_PLAYER_ID, 0); //THIS IS WHAT IM LOOKING FOR
+        SetMonData(&gEnemyParty[1], MON_DATA_HELD_ITEM, &i);
     }
 }
 
