@@ -38,7 +38,7 @@
 #include "constants/items.h"
 #include "constants/event_objects.h"
 #include "party_menu.h"
-
+#include "poke_arena.h"
 struct FrontierBrainMon
 {
     u16 species;
@@ -2520,7 +2520,7 @@ void CreateFrontierBrainPokemon(void)
 
     ZeroEnemyPartyMons();
     monPartyId = 0;
-    monLevel = SetFacilityPtrsGetLevel();
+    monLevel = GetPokeArenaEnemyMonLevel();
     for (i = 0; i < FRONTIER_PARTY_SIZE; selectedMonBits >>= 1, i++)
     {
         if (!(selectedMonBits & 1))

@@ -40,7 +40,7 @@
 #include "constants/trainers.h"
 #include "constants/event_objects.h"
 #include "constants/moves.h"
-
+#include "poke_arena.h"
 // EWRAM vars.
 EWRAM_DATA const struct BattleFrontierTrainer *gFacilityTrainers = NULL;
 EWRAM_DATA const struct TrainerMon *gFacilityTrainerMons = NULL;
@@ -1836,7 +1836,7 @@ static void FillFactoryFrontierTrainerParty(u16 trainerId, u8 firstMonId)
         fixedIV = MAX_PER_STAT_IVS;
     }
 
-    level = SetFacilityPtrsGetLevel();
+    level = GetPokeArenaEnemyMonLevel();
     otID = T1_READ_32(gSaveBlock2Ptr->playerTrainerId);
     for (i = 0; i < FRONTIER_PARTY_SIZE; i++)
     {

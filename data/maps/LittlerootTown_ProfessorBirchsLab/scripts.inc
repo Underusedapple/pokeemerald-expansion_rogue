@@ -513,6 +513,10 @@ LittlerootTown_ProfessorBirchsLab_EventScript_ReceivedJohtoStarter::
 LittlerootTown_ProfessorBirchsLab_EventScript_Birch::
 	lock
 	faceplayer
+	@setting up items and variables for rougelite
+	giveitem ITEM_EXP_SHARE
+	setvar VAR_FRONTIER_BATTLE_MODE, FRONTIER_MODE_DOUBLES
+
     msgbox LittlerootTown_ProfessorBirchsLab_EventScript_SelectReadyStart, MSGBOX_YESNO
     goto_if_eq VAR_RESULT, NO, End_BirchScript
 	msgbox LittlerootTown_ProfessorBirchsLab_EventScript_SelectStarter
