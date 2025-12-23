@@ -520,8 +520,8 @@ LittlerootTown_ProfessorBirchsLab_EventScript_Birch::
     msgbox LittlerootTown_ProfessorBirchsLab_EventScript_SelectReadyStart, MSGBOX_YESNO
     goto_if_eq VAR_RESULT, NO, End_BirchScript
 	msgbox LittlerootTown_ProfessorBirchsLab_EventScript_SelectStarter
-	special ChooseStarter
-	waitstate
+	callnative StartNewPokeballCaseUI
+   	waitstate
 	msgbox LittlerootTown_ProfessorBirchsLab_EventScript_SelectItem, MSGBOX_DEFAULT
 	waitmessage
 	rewardmart
